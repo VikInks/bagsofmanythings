@@ -8,3 +8,5 @@ export const createUser = async (newUser: any) => new user(newUser).save();
 export const updateUser = async (id: string, updatedUser: any) => user.findByIdAndUpdate(id, updatedUser, {new: true});
 export const deleteUser = async (id: string) => user.findByIdAndDelete(id);
 export const isAdmin = async (id: string) => user.findOne({_id:id, $where: function() {return this.role === 'admin'}});
+export const isFriend = async (id: string) => user.findOne({_id:id, $where: function() {return this.accountType === 'friend'}});
+export const verifyFreeAccount = async (id: string) => user.findOne({_id:id, $where: function() {return this.accountType === 'free'}});

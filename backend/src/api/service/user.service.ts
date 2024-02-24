@@ -42,6 +42,7 @@ export class UserService {
         const permissiveUser: Partial<IUser> = {...user};
         delete permissiveUser.password;
         delete permissiveUser.role;
+        delete permissiveUser.accountType;
         this.userCache.set(user.id as string, permissiveUser as IUser);
         console.log(this.userCache);
     }

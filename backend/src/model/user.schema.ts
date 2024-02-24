@@ -9,6 +9,7 @@ export interface IUser {
     bio?: string;
     avatar?: string;
     role?: string;
+    accountType?: string;
     preferences: {
         language: Lang;
         theme: string;
@@ -26,6 +27,12 @@ enum role {
     admin = 'admin'
 }
 
+enum accountType {
+    free = 'free',
+    premium = 'premium',
+    friend = 'friend'
+}
+
 export const userSchema = new mongoose.Schema({
     username: {type: String, required: true, unique: true},
     email: {type: String, required: true, unique: true},
@@ -33,6 +40,7 @@ export const userSchema = new mongoose.Schema({
     bio: {type: String, required: false},
     avatar: {type: String, required: false},
     role: {type: String, enum: Object.values(role), default: role.member},
+    accountType: {type: String, enum: Object.values(accountType), default: accountType.free},
     preferences: {
         language: {type: String, enum: Object.values(Lang), default: Lang.en},
         theme: {type: String, required: true},
@@ -52,6 +60,7 @@ userSchema.methods.toJSON = function() {
     const user = this.toObject();
     delete user.password;
     delete user.role;
+    delete user.accountType;
     return user;
 }
 
