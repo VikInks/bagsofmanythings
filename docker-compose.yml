@@ -1,0 +1,31 @@
+version: '3'
+services:
+  web:
+    build: backend
+    ports:
+      - '4000:4000'
+    depends_on:
+      - mongodb
+    volumes:
+      - ./backend:/usr/src/app
+    environment:
+      - DATABASE_URL=mongodb://mongodb:27017/bagsofmanythings
+    command: [ "npm", "start" ]
+  mongodb:
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb_data:/data/db
+  frontend:
+    build: ./frontend
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    command: [ "npm", "start" ]
+volumes:
+  mongodb_data:
