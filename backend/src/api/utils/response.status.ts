@@ -7,7 +7,7 @@ export interface IResponseStatus {
 }
 
 export const respondWithStatus = (status: number, message: string, success: boolean, data: any, context: contextType) => {
-    context.res.status(status);
-    return {success: success, message: message, data: data};
-}
+    return { success: success, message: message, data: data };
+};
+
 

@@ -12,7 +12,7 @@ export class UserService {
         if (!user) {
             throw new Error('User not found');
         }
-        this.userCache.set(id, user.toJSON());
+        this.userCache.set(id, user);
         return user!;
     }
 
@@ -30,7 +30,10 @@ export class UserService {
         }
         const users = await findAllUsers();
         users.forEach(user => {
-            this.userCache.set(user?.id, user.toJSON());
+            if(!user.id) {
+                throw new Error('User id not found');
+            }
+            this.userCache.set(user.id, user);
         });
         return Array.from(this.userCache.values());
     }

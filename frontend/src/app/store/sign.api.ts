@@ -16,9 +16,13 @@ interface SignInInterface {
     password: string;
 }
 
+async function POST(url: string, data: any) {
+    return await axios.post(url, data, {withCredentials: true});
+}
+
 // Signup action
 export const signUpApi = async (dispatch: AppDispatch, signUpData: SignUpInterface) => {
-    const response = await axios.post('SIGN_UP', signUpData);
+    const response = await POST('SIGN_UP', signUpData);
     if (response.data) {
         let userData = response.data as IUser;
         dispatch(signIn({
@@ -34,7 +38,7 @@ export const signUpApi = async (dispatch: AppDispatch, signUpData: SignUpInterfa
 
 // Signout action
 export const signOutApi = async (dispatch: AppDispatch) => {
-    const response = await axios.post('SIGN_OUT');
+    const response = await POST('SIGN_OUT', null);
     if (response.data) {
         dispatch(signOut());
     }

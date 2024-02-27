@@ -6,6 +6,17 @@ export const userTypeDefs = gql`
         fr
     }
 
+    enum Role {
+        member
+        admin
+    }
+
+    enum AccountType {
+        free
+        premium
+        friend
+    }
+
     type UserPreferences {
         language: Lang!
         theme: String!
@@ -17,15 +28,34 @@ export const userTypeDefs = gql`
         theme: String!
         notifications: Boolean!
     }
+    
+    type Follower {
+        followerSheetId: ID!
+        followerSheetModel: String!
+    }
+    
+    type DiceSkin {
+        _id: ID!
+        name: String!
+        color: String!
+        image: String!
+    }
 
     type User {
         _id: ID!
         username: String!
         email: String!
-        password: String!
         bio: String
         avatar: String
+        role: Role
+        accountType: AccountType
         preferences: UserPreferences!
+        friends: [User]
+        campaigns: [Campaign]
+        masterCampaigns: [Campaign]
+        characterSheets: [CharacterSheet]
+        followers: [Follower]
+        diceSkins: [DiceSkin]
     }
 
     input UserInput {
@@ -41,6 +71,7 @@ export const userTypeDefs = gql`
         users: Response
         user(_id: ID!): Response
         getUsernames(partial: String!): Response
+        getProfile: Response
     }
 
     extend type Mutation {

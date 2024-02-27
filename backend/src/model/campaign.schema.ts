@@ -30,4 +30,9 @@ const campaignSchema = new mongoose.Schema({
     game: { type: String, enum: Object.values(GameNameEnum), default: GameNameEnum.DND5, required: true},
 }, { timestamps: true });
 
+campaignSchema.add({
+    invitations: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    assets: [{ type: mongoose.Schema.Types.ObjectId, ref: "Asset" }],
+});
+
 export const campaign = mongoose.model<ICampaign>("Campaign", campaignSchema);

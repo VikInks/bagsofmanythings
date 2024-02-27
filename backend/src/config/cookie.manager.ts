@@ -1,27 +1,24 @@
 import {contextType} from "./context.type";
 
-export function cookieManager (
-    contextOrResponse: contextType | Response,
+export async function cookieManager (
     token?: string,
     action?: string
-): void {
-    const response = (contextOrResponse as contextType).res || contextOrResponse as Response;
+): Promise<string | null> {
+    if (action === 'login' && token) {
+        // if the action is login and there is a token, create the cookie
+        let cookieValue = `jwt=${encodeURIComponent(token)}; HttpOnly; Path=/; Max-Age=3600`;
+        if (process.env.NODE_ENV === 'production') {
+            cookieValue += '; Secure';
+        }
+        console.log(cookieValue);
+        return cookieValue;
+    }
 
-    // if the action is login and the user is already logged in, return
-    if (action === 'login' && (contextOrResponse as contextType).user) return;
-
-    // if the action is delete or logout, delete the cookie
     if (action === 'delete' || action === 'logout') {
-        response.setHeader('Set-Cookie', 'jwt=; HttpOnly; Path=/; Max-Age=0');
-        return;
-    }
-    let cookieValue: string;
-    if (token) {
-        cookieValue = `jwt=${encodeURIComponent(token)};`;
-        cookieValue += ' HttpOnly; Path=/; Max-Age=3600';
-    } else {
-        cookieValue = 'HttpOnly; Path=/; Max-Age=0';
+        // if the action is delete or logout, create the cookie deletion string
+        return 'jwt=; HttpOnly; Path=/; Max-Age=0';
     }
 
-    response.setHeader('Set-Cookie', cookieValue);
+    return null;
 }
+

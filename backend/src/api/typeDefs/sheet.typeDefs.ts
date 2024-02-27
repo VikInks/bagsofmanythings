@@ -409,7 +409,7 @@ export const sheetTypeDefs = gql`
     }
     
     extend type Mutation {
-        createCharacterSheet(input: CharacterSheetInput!): Response
+        createCharacterSheet(input: CharacterSheetInput!, isFollower: String!): Response
         updateCharacterSheet(sheetId: ID!, input: CharacterSheetInput!): Response
         deleteCharacterSheet(sheetId: ID!): Response
     }

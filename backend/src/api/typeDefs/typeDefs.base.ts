@@ -7,7 +7,7 @@ export const typeDefs = gql`
     type Me {
         id: ID!
         username: String!
-        portfolio: Portfolio!
+        portfolio: [CharacterSheet!]!
         campaignsAsGm: [Campaign!]!
         campaignsAsPlayer: [Campaign!]!
     }

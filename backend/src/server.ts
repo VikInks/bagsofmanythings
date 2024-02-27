@@ -6,24 +6,37 @@ import {userTypeDefs} from "./api/typeDefs/user.typeDefs";
 import {userResolvers} from "./api/resolvers/user.resolvers";
 import {campaignTypeDefs} from "./api/typeDefs/campaign.typeDefs";
 import {campaignResolvers} from "./api/resolvers/campaign.resolvers";
-import {portfolioTypeDefs} from "./api/typeDefs/portfolio.typeDefs";
 import {sheetTypeDefs} from "./api/typeDefs/sheet.typeDefs";
 import {contextType} from "./config/context.type";
 import mongoose from "mongoose";
 import {createUser} from "./dal/user.dal";
 import {signTypeDefs} from "./api/typeDefs/sign.typeDefs";
 import {signResolvers} from "./api/resolvers/sign.resolvers";
+import cors from "cors";
+import {cookieManager} from "./config/cookie.manager";
+import jwt from "jsonwebtoken";
 
 const app: Application = express();
 
+const corsOptions = {
+    origin: 'http://localhost:3000',
+    credentials: true
+};
+
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+
 // todo : verify if the handle of the cookie need to be done in the context too
 const server = new ApolloServer({
-    typeDefs: [typeDefs, userTypeDefs, campaignTypeDefs, portfolioTypeDefs, sheetTypeDefs, signTypeDefs],
+    typeDefs: [typeDefs, userTypeDefs, campaignTypeDefs, sheetTypeDefs, signTypeDefs],
     resolvers: [resolvers, userResolvers, campaignResolvers, signResolvers],
     context: ({req, res}: contextType): contextType => {
-        const user = req.headers.cookie?.split(';').find(c => c.trim().startsWith('jwt='))?.split('=')[1]
-        if (!user) return {req, res, user: null};
-        return {req, res, user};
+        const token = req.headers.cookie?.split(';').find(c => c.trim().startsWith('jwt='))?.split('=')[1]
+        if (!token) return {req, res, user: null};
+        const user = jwt.decode(token, {json: true} as jwt.DecodeOptions)?.toString();
+        console.log('user: ', user);
+        return {req, res, user: user};
     }
 });
 
@@ -36,13 +49,14 @@ async function cleanDB() {
 
 async function createAdmin() {
     const admin = {
-        username: 'admin',
+        username: 'VikInks',
         email: 'a@a.com',
         password: 'a',
         avatar: 'src/image/admin/admin.webp',
+        accountType: 'premium',
         role: 'admin',
         preferences: {
-            language: 'en',
+            language: 'fr',
             theme: 'dark',
             notifications: true
         }

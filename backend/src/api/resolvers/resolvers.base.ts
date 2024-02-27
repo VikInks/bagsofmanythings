@@ -1,7 +1,6 @@
 import {contextType} from "../../config/context.type";
 import {getCampaignsAsGameMaster, getCampaignsAsPlayer} from "../../dal/campaign.dal";
-import {findMyPortfolio} from "../../dal/portfolio.dal";
-import {findUserById} from "../../dal/user.dal";
+import {findMyCharacterToPortfolio, findUserById} from "../../dal/user.dal";
 import {exceptionHandler} from "../utils/exception.handler";
 import {respondWithStatus} from "../utils/response.status";
 
@@ -14,7 +13,7 @@ export const resolvers = {
                 const user = await findUserById(context.user);
                 const campaignsAsGm = await getCampaignsAsGameMaster(context.user);
                 const campaignsAsPlayer = await getCampaignsAsPlayer(context.user);
-                const portfolio = await findMyPortfolio(context.user);
+                const portfolio = await findMyCharacterToPortfolio(context.user);
                 const me = {
                     ...user,
                     portfolio,

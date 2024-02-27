@@ -44,8 +44,8 @@ const WeaponAndSpellSchema = new mongoose.Schema({
         bonus: {type: Number, required: true},
         type: {type: String, required: true},
     },
-    critical: { type: Number, default: 20 },
-    range: { type: Number, default: 5 },
+    critical: {type: Number, default: 20},
+    range: {type: Number, default: 5},
     save: {
         attributes: {type: AbilityEnum, default: AbilityEnum.FOR},
         effect: {type: String, default: '1/2 damage on successful save'},
@@ -63,10 +63,10 @@ const SpellSlotSchema = new mongoose.Schema({
         type: Number,
         default: 0,
         validate: {
-            validator: function(this: ISpellSlot, v: number): boolean {
+            validator: function (this: ISpellSlot, v: number): boolean {
                 return v <= this.available;
             },
-            message: (props: { value: any}) => `Used spell slots cannot exceed available spell slots`
+            message: (props: { value: any }) => `Used spell slots cannot exceed available spell slots`
         }
     },
 }, {_id: false});
@@ -97,15 +97,30 @@ export interface ICharacterSheet extends Document {
             modifier: number;
         }
     };
-    skills: {[k: string]: {proficiency: boolean, bonus: number}};
+    skills: { [k: string]: { proficiency: boolean, bonus: number } };
     spells: { name: string; level: number; description: string; cast: boolean; prepared: boolean; }[];
-    items: { name: string; description?: string; type: string; value?: number; weight?: number; quantity?: number; properties?: string[] }[];
+    items: {
+        name: string;
+        description?: string;
+        type: string;
+        value?: number;
+        weight?: number;
+        quantity?: number;
+        properties?: string[];
+    }[];
     featuresAndTraits: { name: string; description: string }[];
-    hitPoints: { max: number; current: number; temporary: number };
-    experiencePoints: { nextLevel: number; current: number; };
+    hitPoints: {
+        max: { type: number; required: true };
+        current: { type: number; required: true };
+        temporary: { type: number; default: 0 };
+    };
+    experiencePoints: {
+        nextLevel: { type: number; default: 300 };
+        current: { type: number; default: 0 };
+    };
     treasures: [{
         name: { type: string },
-        quantity: { type: number; default: 1},
+        quantity: { type: number; default: 1 },
         value: { type: number },
     }];
     currency: {
@@ -118,10 +133,12 @@ export interface ICharacterSheet extends Document {
     armorClass: number;
     initiative: number;
     speed: number;
-    savingThrows: {[ability in AbilityEnum]: {
-        proficiency: boolean;
-        bonus: number;
-    }};
+    savingThrows: {
+        [ability in AbilityEnum]: {
+            proficiency: boolean;
+            bonus: number;
+        }
+    };
     hitDice: { total: number; current: number; };
     lifeDice: { total: number; current: number; };
     deathSaves: {
@@ -227,11 +244,9 @@ const CharacterSheetSchema = new mongoose.Schema({
     },
     experiencePoints: {
         nextLevel: {type: Number, default: 300},
-        current: {type: Number,  default: 0},
+        current: {type: Number, default: 0},
     },
-    treasures: {
-
-    },
+    treasures: {},
     currency: {
         platinum: {type: Number, default: 0},
         gold: {type: Number, default: 0},

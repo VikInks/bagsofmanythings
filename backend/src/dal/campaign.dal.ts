@@ -11,3 +11,8 @@ export const addPlayerToCampaign = async (id: string, playerId: IUser) => campai
 export const removePlayerFromCampaign = async (id: string, playerId: IUser) => campaign.findByIdAndUpdate(id, {$pull: {players: playerId.id}});
 export const deleteCampaign = async (id: string) => campaign.findByIdAndDelete({_id: id});
 export const existingLink = async (link: string) => campaign.findOne({inviteLink: link});
+export const isMjOfCampaign = async (user: IUser, campaignId: string) => campaign.findOne({gameMaster: user.id, _id: campaignId});
+export const findCharacterSheetsOfPlayersInCampaign = async (campaignId: string) => campaign.findById(campaignId)
+    .populate('players', 'characterSheets')
+    .lean()
+    .exec();
