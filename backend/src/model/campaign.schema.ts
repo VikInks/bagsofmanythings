@@ -12,7 +12,7 @@ enum GameNameEnum {
     OTHER = "OTHER",
 }
 
-export interface ICampaign extends Document {
+export interface ICampaign {
     name: string;
     description: string;
     inviteLink: string;

@@ -5,8 +5,13 @@ export const findUserById = async (id: string) => user.findById(id).lean();
 export const findUserByUsername = async (username: string) => user.findOne({username: username}).lean();
 export const findUserByEmail = async (email: string) => user.findOne({email: email}).lean();
 export const createUser = async (newUser: any) => {
-    newUser.charcterCount = 0;
-    return new user(newUser).save();
+    console.log('newUser: ', newUser);
+    if (newUser) {
+        newUser.charcterCount = 0;
+        return new user(newUser).save();
+    } else {
+        console.log('newUser is undefined!');
+    }
 };
 export const updateUser = async (id: string, updatedUser: any) => user.findByIdAndUpdate(id, updatedUser, {new: true}).lean();
 export const deleteUser = async (id: string) => user.findByIdAndDelete(id).lean();

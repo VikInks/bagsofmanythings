@@ -32,8 +32,8 @@ export const signResolvers = {
                     const user = await findUserByEmail(args.email);
                     console.log(await bcrypt.compare(args.password, user?.password as string));
                     if (!!user && !await bcrypt.compare(args.password, user.password)) return respondWithStatus(401, 'Invalid credentials!', false, null, context);
-                    const cookieValue = await cookieManager(jwtManager(user?._id.toString() as string, '24h' ),'login');
-                    if(cookieValue) context.res.setHeader('Set-Cookie', cookieValue);
+                    const cookieValue = await cookieManager(jwtManager(user?._id.toString() as string, '24h'), 'login');
+                    if (cookieValue) context.res.setHeader('Set-Cookie', cookieValue);
                     return respondWithStatus(200, 'User signed in', true, user, context);
                 } catch (e: any) {
                     return exceptionHandler('sign in', e, context);
@@ -57,11 +57,12 @@ export const signResolvers = {
                 try {
                     const existingUser = await findUserByEmail(args.email);
                     const existUserDict = await userService.getUserByEmail(args.email);
-                    if(existingUser || existUserDict){
+                    if (existingUser || existUserDict) {
                         return exceptionHandler('User already exists', 409, context);
                     }
                     const user = await createUser(args);
-                    await userService.addUser(user);
+                    if (!user) return exceptionHandler('User not created', 500, context);
+                    await userService.addUser(user.toJSON());
                     return respondWithStatus(201, 'User created', true, user, context);
                 } catch (e: any) {
                     return exceptionHandler('create user', e, context);

@@ -1,7 +1,10 @@
 import {campaign, ICampaign} from "../model/campaign.schema";
 import {IUser} from "../model/user.schema";
 
-export const createCampaign = async (data: ICampaign) => campaign.create({...data});
+export const createCampaign = async (data: ICampaign) => {
+    console.log('campaign: ', data);
+    return new campaign(data).save();
+};
 export const getCampaigns = async () => campaign.find();
 export const getCampaign = async (id: string) => campaign.findById({_id: id});
 export const getCampaignsAsGameMaster = async (gameMaster: string) => campaign.find({gameMaster});

@@ -15,6 +15,7 @@ import {signResolvers} from "./api/resolvers/sign.resolvers";
 import cors from "cors";
 import {cookieManager} from "./config/cookie.manager";
 import jwt from "jsonwebtoken";
+import {seed} from "./mockup_data";
 
 const app: Application = express();
 
@@ -35,7 +36,6 @@ const server = new ApolloServer({
         const token = req.headers.cookie?.split(';').find(c => c.trim().startsWith('jwt='))?.split('=')[1]
         if (!token) return {req, res, user: null};
         const user = jwt.decode(token, {json: true} as jwt.DecodeOptions)?.toString();
-        console.log('user: ', user);
         return {req, res, user: user};
     }
 });
@@ -72,6 +72,7 @@ server.start().then(async res => {
             console.log('Connected to MongoDB')
             await cleanDB().then(() => console.log('Database cleaned'));
             await createAdmin().then(() => console.log('Admin user created'));
+            await seed().then(res => console.log(res));
         })
         .catch(err => console.error(err));
 

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-interface ISpellSlot {
+export interface ISpellSlot {
     level: number;
     available: number;
     used: number;
@@ -47,7 +47,7 @@ const WeaponAndSpellSchema = new mongoose.Schema({
     critical: {type: Number, default: 20},
     range: {type: Number, default: 5},
     save: {
-        attributes: {type: AbilityEnum, default: AbilityEnum.FOR},
+        attributes: { type: String, enum: Object.values(AbilityEnum), default: AbilityEnum.FOR },
         effect: {type: String, default: '1/2 damage on successful save'},
     },
     description: {type: String, required: true},
@@ -71,7 +71,7 @@ const SpellSlotSchema = new mongoose.Schema({
     },
 }, {_id: false});
 
-export interface ICharacterSheet extends Document {
+export interface ICharacterSheet {
     playerName: string;
     inspiration: boolean;
     proficiencyBonus: number;
@@ -110,19 +110,19 @@ export interface ICharacterSheet extends Document {
     }[];
     featuresAndTraits: { name: string; description: string }[];
     hitPoints: {
-        max: { type: number; required: true };
-        current: { type: number; required: true };
-        temporary: { type: number; default: 0 };
+        max: number;
+        current: number;
+        temporary: number;
     };
     experiencePoints: {
-        nextLevel: { type: number; default: 300 };
-        current: { type: number; default: 0 };
+        nextLevel: number;
+        current: number;
     };
-    treasures: [{
-        name: { type: string },
-        quantity: { type: number; default: 1 },
-        value: { type: number },
-    }];
+    treasures: {
+        name: string,
+        quantity: number,
+        value: number,
+    }[];
     currency: {
         platinum: number;
         gold: number;
@@ -166,8 +166,13 @@ export interface ICharacterSheet extends Document {
     height: string;
     weight: number;
     spellSlot: ISpellSlot[];
-    alliesAndOrganizations: { name: string };
+    alliesAndOrganizations: { name: string }[];
 }
+
+const attributeSchema = new mongoose.Schema({
+    score: {type: Number, required: true},
+    modifier: {type: Number, required: true}
+}, {_id: false});
 
 const CharacterSheetSchema = new mongoose.Schema({
     playerName: {type: String, required: true},
@@ -190,12 +195,12 @@ const CharacterSheetSchema = new mongoose.Schema({
         level: {type: Number, required: true}
     },
     attributes: {
-        strength: abilityScoreSchema,
-        dexterity: abilityScoreSchema,
-        constitution: abilityScoreSchema,
-        intelligence: abilityScoreSchema,
-        wisdom: abilityScoreSchema,
-        charisma: abilityScoreSchema
+        strength: attributeSchema,
+        dexterity: attributeSchema,
+        constitution: attributeSchema,
+        intelligence: attributeSchema,
+        wisdom: attributeSchema,
+        charisma: attributeSchema,
     },
     skills: {
         acrobatics: skillSchema,
@@ -292,10 +297,10 @@ const CharacterSheetSchema = new mongoose.Schema({
     height: {type: String, required: true},
     weight: {type: Number, required: true},
     spellSlot: [SpellSlotSchema],
-    alliesAndOrganizations: {
+    alliesAndOrganizations: [{
         name: {type: String, required: true},
         description: {type: String, required: true},
-    }
+    }]
 }, {timestamps: true});
 
 export const CharacterSheet = mongoose.model<ICharacterSheet>("CharacterSheet", CharacterSheetSchema);
