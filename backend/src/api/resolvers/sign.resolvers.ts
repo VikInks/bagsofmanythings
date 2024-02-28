@@ -30,9 +30,8 @@ export const signResolvers = {
                 try {
                     if (!!context.user) return respondWithStatus(200, 'User already signed in', true, context.user, context);
                     const user = await findUserByEmail(args.email);
-                    console.log(await bcrypt.compare(args.password, user?.password as string));
                     if (!!user && !await bcrypt.compare(args.password, user.password)) return respondWithStatus(401, 'Invalid credentials!', false, null, context);
-                    const cookieValue = await cookieManager(jwtManager(user?._id.toString() as string, '24h'), 'login');
+                    const cookieValue = await cookieManager(jwtManager(user?._id.toString() as string, '10h'), 'login');
                     if (cookieValue) context.res.setHeader('Set-Cookie', cookieValue);
                     return respondWithStatus(200, 'User signed in', true, user, context);
                 } catch (e: any) {
@@ -43,7 +42,8 @@ export const signResolvers = {
         async signOut(_parent: any, args: any, context: any): Promise<IResponseStatus> {
             return validateAndResponse(null, args, 'sign out', context, async () => {
                 try {
-                    cookieManager(context, jwtManager(context.user, '0s'));
+                    const cookieValue = await cookieManager(jwtManager(context.user, '0s'), 'logout');
+                    if(cookieValue) context.res.setHeader('Set-Cookie', cookieValue);
                     return respondWithStatus(200, 'User signed out', true, null, context);
                 } catch (e: any) {
                     return exceptionHandler('sign out', e, context);
