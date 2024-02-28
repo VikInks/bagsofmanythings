@@ -18,7 +18,6 @@ import {seed} from "./mockup_data";
 import * as Process from "process";
 import {cookieManager} from "./config/cookie.manager";
 import {IncomingHttpHeaders} from "node:http";
-import bodyParser from "body-parser";
 
 const app: Application = express();
 
@@ -110,7 +109,7 @@ async function createAdmin() {
     await createUser(admin);
 }
 
-server.start().then( res => {
+server.start().then(() => {
     server.applyMiddleware({app, cors: false, path: '/graphql'});
 
     mongoose.connect('mongodb://mongodb:27017/bagsofmanythings')
