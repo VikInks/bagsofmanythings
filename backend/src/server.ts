@@ -13,36 +13,82 @@ import {createUser} from "./dal/user.dal";
 import {signTypeDefs} from "./api/typeDefs/sign.typeDefs";
 import {signResolvers} from "./api/resolvers/sign.resolvers";
 import cors from "cors";
-import {cookieManager} from "./config/cookie.manager";
-import jwt from "jsonwebtoken";
+import jwt, {JwtPayload} from "jsonwebtoken";
 import {seed} from "./mockup_data";
+import * as Process from "process";
+import {cookieManager} from "./config/cookie.manager";
+import {IncomingHttpHeaders} from "node:http";
+import bodyParser from "body-parser";
 
 const app: Application = express();
 
 const corsOptions = {
-    origin: 'http://localhost:3000',
-    credentials: true
+    origin: [
+        'http://localhost:3000',
+        'https://studio.apollographql.com'
+    ],
+    credentials: true,
+    allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'Origin',
+        'Accept',
+        'X-Requested-With',
+        'cookie',
+    ],
 };
+
+const extractTokenFromCookies = (headers: IncomingHttpHeaders): string | undefined => {
+    return headers.cookie?.split(';').find(c => c.trim().startsWith('jwt='))?.split('=')[1];
+}
+
+const verifyAndDecodeToken = (token: string): string | null => {
+    try {
+        const secret = process.env.JWT_SECRET || 'SECRET_KEY';
+        const decoded: string | JwtPayload = jwt.verify(token, secret);
+        console.log('decoded: ', decoded);
+        if (decoded && typeof decoded === 'object') {
+            const userId = decoded.id;
+            console.log('userId: ', userId);
+            if (typeof userId === 'string') {
+                return userId;
+            }
+        }
+        console.error('JWT does not contain a valid userId or username');
+        return null;
+    } catch (error) {
+        console.error(`Failed to verify token: ${error}`);
+        return null;
+    }
+}
+
 
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
-// todo : verify if the handle of the cookie need to be done in the context too
 const server = new ApolloServer({
     typeDefs: [typeDefs, userTypeDefs, campaignTypeDefs, sheetTypeDefs, signTypeDefs],
     resolvers: [resolvers, userResolvers, campaignResolvers, signResolvers],
-    context: ({req, res}: contextType): contextType => {
-        const token = req.headers.cookie?.split(';').find(c => c.trim().startsWith('jwt='))?.split('=')[1]
-        if (!token) return {req, res, user: null};
-        const user = jwt.decode(token, {json: true} as jwt.DecodeOptions)?.toString();
-        return {req, res, user: user};
+    context: async ({req, res}: contextType): Promise<contextType> => {
+        const token = extractTokenFromCookies(req.headers);
+        let user = null;
+
+        console.log('token: ', token);
+        if (token) {
+            user = verifyAndDecodeToken(token);
+        }
+
+        if(!user){
+            const cookieValue = await cookieManager(null, 'logout');
+            if(cookieValue) res.setHeader('Set-Cookie', cookieValue);
+        }
+
+        console.log('user: ', user);
+        return {req, res, user};
     }
 });
 
-// todo: PROD add env file
-// todo: PROD delete cleanDB
-// todo: createAdmin should not be done in the code, find another solution to avoid having it in the code
 async function cleanDB() {
     await mongoose.connection.db.dropDatabase();
 }
@@ -61,16 +107,16 @@ async function createAdmin() {
             notifications: true
         }
     };
-    await createUser(admin).then(savedUser => console.log(savedUser));
+    await createUser(admin);
 }
 
-server.start().then(async res => {
-    server.applyMiddleware({app, path: '/graphql'});
+server.start().then( res => {
+    server.applyMiddleware({app, cors: false, path: '/graphql'});
 
     mongoose.connect('mongodb://mongodb:27017/bagsofmanythings')
         .then(async () => {
             console.log('Connected to MongoDB')
-            await cleanDB().then(() => console.log('Database cleaned'));
+            if(!Process.env.PRODUCTION) await cleanDB().then(() => console.log('Database cleaned'));
             await createAdmin().then(() => console.log('Admin user created'));
             await seed().then(res => console.log(res));
         })

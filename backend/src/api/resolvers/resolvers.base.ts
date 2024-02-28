@@ -9,6 +9,7 @@ export const resolvers = {
         hello: () => 'Hello, world!',
         me: async (_: any, __: any, context: contextType) => {
             try {
+                console.log('context: ', context['user']);
                 if (!context.user) return respondWithStatus(401, 'Unauthorized', false, null, context);
                 const user = await findUserById(context.user);
                 const campaignsAsGm = await getCampaignsAsGameMaster(context.user);

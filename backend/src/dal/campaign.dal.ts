@@ -2,7 +2,6 @@ import {campaign, ICampaign} from "../model/campaign.schema";
 import {IUser} from "../model/user.schema";
 
 export const createCampaign = async (data: ICampaign) => {
-    console.log('campaign: ', data);
     return new campaign(data).save();
 };
 export const getCampaigns = async () => campaign.find();

@@ -5,7 +5,6 @@ export const findUserById = async (id: string) => user.findById(id).lean();
 export const findUserByUsername = async (username: string) => user.findOne({username: username}).lean();
 export const findUserByEmail = async (email: string) => user.findOne({email: email}).lean();
 export const createUser = async (newUser: any) => {
-    console.log('newUser: ', newUser);
     if (newUser) {
         newUser.charcterCount = 0;
         return new user(newUser).save();
