@@ -45,10 +45,8 @@ const verifyAndDecodeToken = (token: string): string | null => {
     try {
         const secret = process.env.JWT_SECRET || 'SECRET_KEY';
         const decoded: string | JwtPayload = jwt.verify(token, secret);
-        console.log('decoded: ', decoded);
         if (decoded && typeof decoded === 'object') {
             const userId = decoded.id;
-            console.log('userId: ', userId);
             if (typeof userId === 'string') {
                 return userId;
             }
@@ -72,8 +70,6 @@ const server = new ApolloServer({
     context: async ({req, res}: contextType): Promise<contextType> => {
         const token = extractTokenFromCookies(req.headers);
         let user = null;
-
-        console.log('token: ', token);
         if (token) {
             user = verifyAndDecodeToken(token);
         }
@@ -82,8 +78,6 @@ const server = new ApolloServer({
             const cookieValue = await cookieManager(null, 'logout');
             if(cookieValue) res.setHeader('Set-Cookie', cookieValue);
         }
-
-        console.log('user: ', user);
         return {req, res, user};
     }
 });
