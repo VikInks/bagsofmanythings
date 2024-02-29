@@ -1,13 +1,9 @@
-import {createUser, deleteUser, findAllUsers, findUserById, isAdmin, updateUser} from "../../dal/user.dal";
+import {deleteUser, findAllUsers, findUserById, isAdmin, updateUser} from "../../dal/user.dal";
 import {contextType} from "../../config/context.type";
 import {respondWithStatus} from "../utils/response.status";
-import {UserService} from "../service/user.service";
 import {validateAndResponse} from "../utils/validate.response";
 import {IUser} from "../../model/user.schema";
 import {idSchema, updateUserSchema} from "./validation/user.val";
-import {valid} from "joi";
-
-const userService = new UserService();
 
 export const userResolvers = {
     Query: {
@@ -39,7 +35,7 @@ export const userResolvers = {
         getUsernames: async (_: any, args: { partial: string }, context: contextType) => {
             try {
                 if (!context.user) return respondWithStatus(401, "Unauthorized", false, null, context);
-                const users = await userService.getUsers();
+                const users = await findAllUsers();
                 const usernames = users.map(user => user.username);
                 const partial = args.partial.toLowerCase();
                 const result = usernames.filter(username => username.toLowerCase().includes(partial));
@@ -69,7 +65,6 @@ export const userResolvers = {
                     if (args.user.role && args.user.role === 'admin' && !await isAdmin(context.user)) return respondWithStatus(403, "Forbidden", false, null, context);
                     const user = await updateUser(args.user.id, args.user);
                     if (!user) return respondWithStatus(404, "Not Found", false, null, context);
-                    await userService.updateUser(user);
                     return respondWithStatus(200, "OK", true, user, context);
                 } catch (e: any) {
                     return respondWithStatus(500, "Internal Server Error", false, null, context);
@@ -84,7 +79,6 @@ export const userResolvers = {
                     if (context.user !== args.id && !await isAdmin(context.user)) return respondWithStatus(403, "Forbidden", false, null, context);
                     const user = await deleteUser(args.id);
                     if (!user) return respondWithStatus(404, "Not Found", false, null, context);
-                    await userService.removeUser(args.id);
                     return respondWithStatus(200, "OK", true, user, context);
                 } catch (e: any) {
                     return respondWithStatus(500, "Internal Server Error", false, null, context);

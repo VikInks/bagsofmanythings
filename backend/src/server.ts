@@ -108,7 +108,7 @@ server.start().then(() => {
 
     mongoose.connect('mongodb://mongodb:27017/bagsofmanythings')
         .then(async () => {
-            console.log('Connected to MongoDB')
+            console.log('Connected to MongoDB');
             if(!Process.env.PRODUCTION) await cleanDB().then(() => console.log('Database cleaned'));
             await createAdmin().then(() => console.log('Admin user created'));
             await seed().then(res => console.log(res));

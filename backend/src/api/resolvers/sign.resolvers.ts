@@ -7,7 +7,6 @@ import {contextType} from "../../config/context.type";
 import bcrypt from "bcryptjs";
 import {cookieManager} from "../../config/cookie.manager";
 import {jwtManager} from "../../config/jwt.manager";
-import {UserService} from "../service/user.service";
 
 interface signUpInterface {
     username: string,
@@ -21,7 +20,6 @@ interface signInInterface {
     password: string
 }
 
-const userService = new UserService();
 
 export const signResolvers = {
     Query: {
@@ -56,13 +54,11 @@ export const signResolvers = {
             return validateAndResponse(signUpSchema, args, 'sign up', context, async () => {
                 try {
                     const existingUser = await findUserByEmail(args.email);
-                    const existUserDict = await userService.getUserByEmail(args.email);
-                    if (existingUser || existUserDict) {
+                    if (existingUser) {
                         return exceptionHandler('User already exists', 409, context);
                     }
                     const user = await createUser(args);
                     if (!user) return exceptionHandler('User not created', 500, context);
-                    await userService.addUser(user.toJSON());
                     return respondWithStatus(201, 'User created', true, user, context);
                 } catch (e: any) {
                     return exceptionHandler('create user', e, context);

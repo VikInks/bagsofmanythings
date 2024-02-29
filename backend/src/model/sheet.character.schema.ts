@@ -15,11 +15,6 @@ enum AbilityEnum {
     CHA = "CHA",
 }
 
-const abilityScoreSchema = {
-    score: {type: Number, required: true},
-    modifier: {type: Number, required: true},
-};
-
 const skillSchema = {
     proficiency: {type: Boolean, default: false},
     bonus: {type: Number, required: true},
@@ -66,7 +61,7 @@ const SpellSlotSchema = new mongoose.Schema({
             validator: function (this: ISpellSlot, v: number): boolean {
                 return v <= this.available;
             },
-            message: (props: { value: any }) => `Used spell slots cannot exceed available spell slots`
+            message: () => `Used spell slots cannot exceed available spell slots`
         }
     },
 }, {_id: false});
@@ -82,7 +77,7 @@ export interface ICharacterSheet {
         weight: number;
         quantity: number;
     }[];
-    weapons: string[]; // Assuming that this is an array of string identifiers
+    weapons: string[];
     basicInfo: {
         name: string;
         class: string;
@@ -97,8 +92,19 @@ export interface ICharacterSheet {
             modifier: number;
         }
     };
-    skills: { [k: string]: { proficiency: boolean, bonus: number } };
-    spells: { name: string; level: number; description: string; cast: boolean; prepared: boolean; }[];
+    skills: {
+        [k: string]: {
+            proficiency: boolean,
+            bonus: number
+        }
+    };
+    spells: {
+        name: string;
+        level: number;
+        description: string;
+        cast: boolean;
+        prepared: boolean;
+    }[];
     items: {
         name: string;
         description?: string;
@@ -139,8 +145,14 @@ export interface ICharacterSheet {
             bonus: number;
         }
     };
-    hitDice: { total: number; current: number; };
-    lifeDice: { total: number; current: number; };
+    hitDice: {
+        total: number;
+        current: number;
+    };
+    lifeDice: {
+        total: number;
+        current: number;
+    };
     deathSaves: {
         successes: number;
         failures: number;
@@ -166,7 +178,10 @@ export interface ICharacterSheet {
     height: string;
     weight: number;
     spellSlot: ISpellSlot[];
-    alliesAndOrganizations: { name: string }[];
+    alliesAndOrganizations: {
+        name: string,
+        description: string,
+    }[];
 }
 
 const attributeSchema = new mongoose.Schema({
