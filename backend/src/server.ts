@@ -1,4 +1,3 @@
-import express, {Application} from 'express';
 import {ApolloServer} from 'apollo-server-express';
 import {typeDefs} from "./api/typeDefs/typeDefs.base";
 import {resolvers} from "./api/resolvers/resolvers.base";
@@ -18,6 +17,7 @@ import {seed} from "./mockup_data";
 import * as Process from "process";
 import {cookieManager} from "./config/cookie.manager";
 import {IncomingHttpHeaders} from "node:http";
+import express, {Application} from "express";
 
 const app: Application = express();
 
