@@ -106,7 +106,7 @@ async function createAdmin() {
 server.start().then(() => {
     server.applyMiddleware({app, cors: false, path: '/graphql'});
 
-    mongoose.connect('mongodb://mongodb:27017/bagsofmanythings')
+    mongoose.connect('mongodb://localhost:27017/bagsofmanythings')
         .then(async () => {
             console.log('Connected to MongoDB');
             if(!Process.env.PRODUCTION) await cleanDB().then(() => console.log('Database cleaned'));

@@ -1,0 +1,19 @@
+.input-modal {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #aaa;
+    border-radius: 10px;
+    transition: border-color 0.3s ease-in-out;
+    outline: none;
+    box-shadow: none;
+    margin-bottom: 10px;
+}
+
+.input-modal:focus {
+    border-color: #8b4513;
+}
+
+.input-modal::placeholder {
+    color: #aaa;
+}

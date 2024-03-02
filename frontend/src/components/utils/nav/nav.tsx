@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { AiOutlineMenu, AiOutlineSearch, AiOutlineDashboard, AiOutlineUser, AiOutlineMessage, AiOutlineSetting } from 'react-icons/ai';
-import { BsBoxArrowRight } from 'react-icons/bs';
 import './nav.css';
 
 const Sidebar: React.FC = () => {
@@ -9,10 +8,10 @@ const Sidebar: React.FC = () => {
     const toggleSidebar = () => setIsOpen(!isOpen);
 
     return (
-        <div className={`sidebar ${isOpen ? 'open' : ''}`}>
+        <div className={`upbar ${isOpen ? 'open' : ''}`}>
             <div className="logo-details">
-                <AiOutlineMenu className="menu-bars" onClick={toggleSidebar} />
-                <span className="logo_name">CodingLab</span>
+                <AiOutlineMenu className="menu-bars" style={{width: '50px', height: '50px', color: 'whitesmoke'}} onClick={toggleSidebar} />
+                <span className="logo_name">Bags of many things</span>
             </div>
             <ul className="nav-list">
 

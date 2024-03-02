@@ -1,5 +1,6 @@
 import React from 'react';
 import Nav from "./utils/nav/nav";
+import './css/template.css';
 
 interface MainFrameProps {
     children: React.ReactNode;
