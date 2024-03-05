@@ -15,9 +15,9 @@ import cors from "cors";
 import jwt, {JwtPayload} from "jsonwebtoken";
 import {seed} from "./mockup_data";
 import * as Process from "process";
-import {cookieManager} from "./config/cookie.manager";
 import {IncomingHttpHeaders} from "node:http";
 import express, {Application} from "express";
+import SessionManager from "./service/session.manager";
 
 const app: Application = express();
 
@@ -59,7 +59,6 @@ const verifyAndDecodeToken = (token: string): string | null => {
     }
 }
 
-
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -67,18 +66,30 @@ app.use(express.urlencoded({extended: true}));
 const server = new ApolloServer({
     typeDefs: [typeDefs, userTypeDefs, campaignTypeDefs, sheetTypeDefs, signTypeDefs],
     resolvers: [resolvers, userResolvers, campaignResolvers, signResolvers],
-    context: async ({req, res}: contextType): Promise<contextType> => {
+    context: async ({ req, res }: contextType): Promise<contextType> => {
+        const operationName = req.body?.operationName;
+
+        if (operationName && ["signIn", "signUp"].includes(operationName)) {
+            return { req, res };
+        }
+
         const token = extractTokenFromCookies(req.headers);
         let user = null;
         if (token) {
-            user = verifyAndDecodeToken(token);
+            const userId = verifyAndDecodeToken(token);
+            if (userId) {
+                user = SessionManager.getSessionUserId(token);
+            }
+            if (!user) {
+                res.status(401).send("Unauthorized");
+                throw new Error("Unauthorized");
+            }
+
+            return { req, res, user };
         }
 
-        if(!user){
-            const cookieValue = await cookieManager(null, 'logout');
-            if(cookieValue) res.setHeader('Set-Cookie', cookieValue);
-        }
-        return {req, res, user};
+        res.status(401).send("Unauthorized");
+        throw new Error("Unauthorized");
     }
 });
 

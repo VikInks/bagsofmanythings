@@ -7,6 +7,7 @@ import {contextType} from "../../config/context.type";
 import bcrypt from "bcryptjs";
 import {cookieManager} from "../../config/cookie.manager";
 import {jwtManager} from "../../config/jwt.manager";
+import SessionManager from "../../service/session.manager";
 
 interface signUpInterface {
     username: string,
@@ -20,7 +21,6 @@ interface signInInterface {
     password: string
 }
 
-
 export const signResolvers = {
     Query: {
         async signIn(_parent: any, args: signInInterface, context: contextType) {
@@ -29,7 +29,8 @@ export const signResolvers = {
                     if (!!context.user) return respondWithStatus(200, 'User already signed in', true, context.user, context);
                     const user = await findUserByEmail(args.email);
                     if (!!user && !await bcrypt.compare(args.password, user.password)) return respondWithStatus(401, 'Invalid credentials!', false, null, context);
-                    const cookieValue = await cookieManager(jwtManager(user?._id.toString() as string, '10h'), 'login');
+                    const newSessionId = SessionManager.createSession(user?._id.toString()!);
+                    const cookieValue = await cookieManager(jwtManager(newSessionId, '10h'), 'login');
                     if (cookieValue) context.res.setHeader('Set-Cookie', cookieValue);
                     return respondWithStatus(200, 'User signed in', true, user, context);
                 } catch (e: any) {
@@ -41,6 +42,7 @@ export const signResolvers = {
             return validateAndResponse(null, args, 'sign out', context, async () => {
                 try {
                     const cookieValue = await cookieManager(jwtManager(context.user, '0s'), 'logout');
+                    SessionManager.deleteSession(context.user);
                     if(cookieValue) context.res.setHeader('Set-Cookie', cookieValue);
                     return respondWithStatus(200, 'User signed out', true, null, context);
                 } catch (e: any) {
