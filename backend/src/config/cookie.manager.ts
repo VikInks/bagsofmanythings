@@ -1,17 +1,25 @@
 export async function cookieManager(
-    token?: string | null,
+    tokens?: {[key: string]: string} | null,
     action?: string
-): Promise<string | null> {
-    if (action === 'login' && typeof token === 'string') {
-        let cookieValue = `jwt=${encodeURIComponent(token)}; HttpOnly; sameSite=Strict; Path=/; Max-Age=36000`;
-        if (process.env.NODE_ENV === 'production') {
-            cookieValue += '; Secure';
+): Promise<string[] | null> {
+    if (action === 'login' && tokens) {
+        let cookies = [];
+        for(let tokenName in tokens){
+            let cookieValue = `${tokenName}=${encodeURIComponent(tokens[tokenName])}; 
+            HttpOnly; 
+            sameSite=Strict; 
+            Path=/; 
+            Max-Age=${tokenName === 'access_token' ? 36000 : 604800}`; // time = 10h and 7d
+            if (process.env.NODE_ENV === 'production') {
+                cookieValue += '; Secure';
+            }
+            cookies.push(cookieValue);
         }
-        return cookieValue;
+        return cookies;
     }
 
     if (action === 'delete' || action === 'logout') {
-        return 'jwt=; HttpOnly; Path=/; Max-Age=0';
+        return ['access_token=; HttpOnly; Path=/; Max-Age=0', 'refresh_token=; HttpOnly; Path=/; Max-Age=0'];
     }
 
     return null;

@@ -41,7 +41,7 @@ const extractTokenFromCookies = (headers: IncomingHttpHeaders): string | undefin
     return headers.cookie?.split(';').find(c => c.trim().startsWith('jwt='))?.split('=')[1];
 }
 
-const verifyAndDecodeToken = (token: string): string | null => {
+const verifyAndDecodeToken = async (token: string): Promise<string | null> => {
     try {
         const secret = process.env.JWT_SECRET || 'SECRET_KEY';
         const decoded: string | JwtPayload = jwt.verify(token, secret);
@@ -68,28 +68,20 @@ const server = new ApolloServer({
     resolvers: [resolvers, userResolvers, campaignResolvers, signResolvers],
     context: async ({ req, res }: contextType): Promise<contextType> => {
         const operationName = req.body?.operationName;
-
         if (operationName && ["signIn", "signUp"].includes(operationName)) {
             return { req, res };
         }
-
         const token = extractTokenFromCookies(req.headers);
-        let user = null;
-        if (token) {
-            const userId = verifyAndDecodeToken(token);
-            if (userId) {
-                user = SessionManager.getSessionUserId(token);
-            }
-            if (!user) {
-                res.status(401).send("Unauthorized");
-                throw new Error("Unauthorized");
-            }
-
-            return { req, res, user };
+        if (!token) {
+            res.status(401).send("Unauthorized");
+            throw new Error("Unauthorized");
         }
-
-        res.status(401).send("Unauthorized");
-        throw new Error("Unauthorized");
+        const user = !!(await verifyAndDecodeToken(token)) ? SessionManager.getSessionUserId(token) : null;
+        if (!user) {
+            res.status(401).send("Unauthorized");
+            throw new Error("Unauthorized");
+        }
+        return { req, res, user };
     }
 });
 
