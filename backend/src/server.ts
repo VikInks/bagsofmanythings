@@ -8,7 +8,7 @@ import {campaignResolvers} from "./api/resolvers/campaign.resolvers";
 import {sheetTypeDefs} from "./api/typeDefs/sheet.typeDefs";
 import {contextType} from "./config/context.type";
 import mongoose from "mongoose";
-import {createUser} from "./dal/user.dal";
+import {createUser} from "./data_access/user.dal";
 import {signTypeDefs} from "./api/typeDefs/sign.typeDefs";
 import {signResolvers} from "./api/resolvers/sign.resolvers";
 import cors from "cors";
@@ -18,6 +18,7 @@ import * as Process from "process";
 import {IncomingHttpHeaders} from "node:http";
 import express, {Application} from "express";
 import SessionManager from "./service/session.manager";
+import {planner} from "./api/utils/planner.cron";
 
 const app: Application = express();
 
@@ -41,14 +42,14 @@ const extractTokenFromCookies = (headers: IncomingHttpHeaders): string | undefin
     return headers.cookie?.split(';').find(c => c.trim().startsWith('jwt='))?.split('=')[1];
 }
 
-const verifyAndDecodeToken = async (token: string): Promise<string | null> => {
+const verifyAndDecodeToken = async (token: string): Promise<{ userId: string, sessionId: string | null } | null> => {
     try {
         const secret = process.env.JWT_SECRET || 'SECRET_KEY';
         const decoded: string | JwtPayload = jwt.verify(token, secret);
         if (decoded && typeof decoded === 'object') {
             const userId = decoded.id;
             if (typeof userId === 'string') {
-                return userId;
+                return {userId, sessionId: SessionManager.getSessionId(userId)};
             }
         }
         console.error('JWT does not contain a valid userId or username');
@@ -66,10 +67,10 @@ app.use(express.urlencoded({extended: true}));
 const server = new ApolloServer({
     typeDefs: [typeDefs, userTypeDefs, campaignTypeDefs, sheetTypeDefs, signTypeDefs],
     resolvers: [resolvers, userResolvers, campaignResolvers, signResolvers],
-    context: async ({ req, res }: contextType): Promise<contextType> => {
+    context: async ({req, res}: contextType): Promise<contextType> => {
         const operationName = req.body?.operationName;
         if (operationName && ["signIn", "signUp"].includes(operationName)) {
-            return { req, res };
+            return {req, res};
         }
         const token = extractTokenFromCookies(req.headers);
         if (!token) {
@@ -81,7 +82,7 @@ const server = new ApolloServer({
             res.status(401).send("Unauthorized");
             throw new Error("Unauthorized");
         }
-        return { req, res, user };
+        return {req, res, user};
     }
 });
 
@@ -112,11 +113,13 @@ server.start().then(() => {
     mongoose.connect('mongodb://localhost:27017/bagsofmanythings')
         .then(async () => {
             console.log('Connected to MongoDB');
-            if(!Process.env.PRODUCTION) await cleanDB().then(() => console.log('Database cleaned'));
+            if (!Process.env.PRODUCTION) await cleanDB().then(() => console.log('Database cleaned'));
             await createAdmin().then(() => console.log('Admin user created'));
             await seed().then(res => console.log(res));
         })
         .catch(err => console.error(err));
+
+    planner();
 
     app.listen({port: 4000}, () =>
         console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)

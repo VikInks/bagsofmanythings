@@ -6,12 +6,12 @@ import {
     isFriend,
     updateUser,
     verifyFreeAccount
-} from "../../dal/user.dal";
+} from "../../data_access/user.dal";
 import {respondWithStatus} from "../utils/response.status";
 import {ICharacterSheet} from "../../model/sheet.character.schema";
 import {exceptionHandler} from "../utils/exception.handler";
-import {createCharacterSheet, deleteCharacterSheet, getCharacterSheet, updateCharacterSheet} from "../../dal/sheet.dal";
-import {findCharacterSheetsOfPlayersInCampaign, isMjOfCampaign} from "../../dal/campaign.dal";
+import {createCharacterSheet, deleteCharacterSheet, getCharacterSheet, updateCharacterSheet} from "../../data_access/sheet.dal";
+import {findCharacterSheetsOfPlayersInCampaign, isMjOfCampaign} from "../../data_access/campaign.dal";
 import characterSheetValidation from "./validation/character.sheet.val";
 
 /**

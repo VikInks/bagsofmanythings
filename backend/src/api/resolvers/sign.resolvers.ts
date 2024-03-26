@@ -1,12 +1,12 @@
 import {validateAndResponse} from "../utils/validate.response";
-import {createUser, findUserByEmail} from "../../dal/user.dal";
+import {createUser, findUserByEmail} from "../../data_access/user.dal";
 import {exceptionHandler} from "../utils/exception.handler";
 import {IResponseStatus, respondWithStatus} from "../utils/response.status";
 import {signInSchema, signUpSchema} from "./validation/user.val";
 import {contextType} from "../../config/context.type";
 import bcrypt from "bcryptjs";
 import {cookieManager} from "../../config/cookie.manager";
-import {jwtManager} from "../../config/jwt.manager";
+import {jwtRefreshManager} from "../../config/jwt.manager";
 import SessionManager from "../../service/session.manager";
 
 interface signUpInterface {
@@ -30,8 +30,9 @@ export const signResolvers = {
                     const user = await findUserByEmail(args.email);
                     if (!!user && !await bcrypt.compare(args.password, user.password)) return respondWithStatus(401, 'Invalid credentials!', false, null, context);
                     const newSessionId = SessionManager.createSession(user?._id.toString()!);
-                    const cookieValue = await cookieManager(jwtManager(newSessionId, '10h'), 'login');
-                    if (cookieValue) context.res.setHeader('Set-Cookie', cookieValue);
+                    const token = jwtRefreshManager(newSessionId, '10h');
+                    const cookieValue = cookieManager(token, 'login');
+                    context.res.setHeader('Set-Cookie', cookieValue);
                     return respondWithStatus(200, 'User signed in', true, user, context);
                 } catch (e: any) {
                     return exceptionHandler('sign in', e, context);
@@ -41,9 +42,9 @@ export const signResolvers = {
         async signOut(_parent: any, args: any, context: any): Promise<IResponseStatus> {
             return validateAndResponse(null, args, 'sign out', context, async () => {
                 try {
-                    const cookieValue = await cookieManager(jwtManager(context.user, '0s'), 'logout');
-                    SessionManager.deleteSession(context.user);
-                    if(cookieValue) context.res.setHeader('Set-Cookie', cookieValue);
+                    const cookieValue = cookieManager(null, 'logout');
+                    context.res.setHeader('Set-Cookie', cookieValue);
+                    SessionManager.deleteUserSession(sessionId);
                     return respondWithStatus(200, 'User signed out', true, null, context);
                 } catch (e: any) {
                     return exceptionHandler('sign out', e, context);

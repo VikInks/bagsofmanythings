@@ -1,6 +1,6 @@
 import {contextType} from "../../config/context.type";
-import {getCampaignsAsGameMaster, getCampaignsAsPlayer} from "../../dal/campaign.dal";
-import {findMyCharacterToPortfolio, findUserById} from "../../dal/user.dal";
+import {getCampaignsAsGameMaster, getCampaignsAsPlayer} from "../../data_access/campaign.dal";
+import {findMyCharacterToPortfolio, findUserById} from "../../data_access/user.dal";
 import {exceptionHandler} from "../utils/exception.handler";
 import {respondWithStatus} from "../utils/response.status";
 

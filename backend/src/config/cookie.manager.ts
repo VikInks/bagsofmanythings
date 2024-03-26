@@ -1,26 +1,17 @@
-export async function cookieManager(
-    tokens?: {[key: string]: string} | null,
-    action?: string
-): Promise<string[] | null> {
-    if (action === 'login' && tokens) {
-        let cookies = [];
-        for(let tokenName in tokens){
-            let cookieValue = `${tokenName}=${encodeURIComponent(tokens[tokenName])}; 
-            HttpOnly; 
-            sameSite=Strict; 
-            Path=/; 
-            Max-Age=${tokenName === 'access_token' ? 36000 : 604800}`; // time = 10h and 7d
-            if (process.env.NODE_ENV === 'production') {
-                cookieValue += '; Secure';
-            }
-            cookies.push(cookieValue);
+export function cookieManager(token: string | null, action: 'login' | 'logout'): string[] {
+    if (action === 'login' && token) {
+        const cookieValue = `jwt=${encodeURIComponent(token)}; 
+        HttpOnly; 
+        SameSite=Strict; 
+        Path=/; 
+        Max-Age=${36000}`; // 10 heures
+        if (process.env.NODE_ENV === 'production') {
+            return [`${cookieValue}; Secure`];
         }
-        return cookies;
+        return [cookieValue];
+    } else if (action === 'logout') {
+        // Invalidation du cookie JWT en fixant Max-Age à 0
+        return ['jwt=; HttpOnly; Path=/; Max-Age=0'];
     }
-
-    if (action === 'delete' || action === 'logout') {
-        return ['access_token=; HttpOnly; Path=/; Max-Age=0', 'refresh_token=; HttpOnly; Path=/; Max-Age=0'];
-    }
-
-    return null;
+    return [];
 }

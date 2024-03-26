@@ -1,4 +1,4 @@
-import {deleteUser, findAllUsers, findUserById, isAdmin, updateUser} from "../../dal/user.dal";
+import {deleteUser, findAllUsers, findUserById, isAdmin, updateUser} from "../../data_access/user.dal";
 import {contextType} from "../../config/context.type";
 import {respondWithStatus} from "../utils/response.status";
 import {validateAndResponse} from "../utils/validate.response";

@@ -1,7 +1,7 @@
 import {campaign} from "../../model/campaign.schema";
 import {v4 as uuidv4} from "uuid";
-import {addPlayerToCampaign, existingLink, removePlayerFromCampaign, updateCampaign} from "../../dal/campaign.dal";
-import {findUserById} from "../../dal/user.dal";
+import {addPlayerToCampaign, existingLink, removePlayerFromCampaign} from "../../data_access/campaign.dal";
+import {findUserById} from "../../data_access/user.dal";
 import {IResponseStatus, respondWithStatus} from "../utils/response.status";
 import {contextType} from "../../config/context.type";
 import {exceptionHandler} from "../utils/exception.handler";
