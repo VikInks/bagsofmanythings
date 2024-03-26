@@ -1,0 +1,20 @@
+/* px, em, rem, %, vh, vw */
+body {
+  min-height: 100vh;
+  text-transform: uppercase;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+.wrapper {
+  padding: 0 1rem;
+  margin: 0 auto;
+}
+
+@media screen and (min-width:500px){
+  .wrapper {
+    padding: 0 5rem;
+    max-width: 900px;
+  }
+}

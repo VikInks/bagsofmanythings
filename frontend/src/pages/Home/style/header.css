@@ -1,0 +1,39 @@
+/************* HEADER *************/
+.header {
+  position: relative;
+}
+.header .wrapper {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+}
+.header__menu, .header__logo, .header__profile {
+  display: inline-block;
+}
+.header__logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+  color: var(--color-highlight);
+}
+.header__count {
+  position: absolute;
+  display: flex;
+  font-size: 11px;
+  left: 0;
+  bottom: -6px;
+  width: 100%;
+  text-align: center;
+  align-items: center;
+  justify-content: space-between;
+}
+.header__count__image {
+  display: inline-block;
+  width: calc(50% - 11px);
+  height: 2px;
+  background-color: var(--color-highlight);
+}

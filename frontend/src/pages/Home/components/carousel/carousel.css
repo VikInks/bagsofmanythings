@@ -1,0 +1,52 @@
+.carousel {
+    display: flex;
+    position: relative;
+    width: 100%;
+    justify-content: center;
+}
+
+.carousel__container {
+    display: flex;
+    flex-direction: row;
+    overflow-x: scroll;
+    scrollbar-width: none;
+}
+
+.carousel__container::-webkit-scrollbar {
+    display: none;
+}
+
+/*limits the number of elements shown in the carousel*/
+.display_tree {
+    width: calc((170px + 30px) * 3);
+    display: flex;
+    justify-content: space-evenly;
+    gap: 20px;
+}
+
+.carousel__button {
+    position: absolute;
+    top: 50%;
+    width: 30px;
+    height: 30px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.5);
+    text-align: center;
+    line-height: 30px;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.carousel__button:hover {
+    color: rgba(0, 0, 0, 0.7);
+}
+
+.carousel__button--left {
+    left: 0;
+    transform: translateY(-50%); /* to vertically center the button */
+}
+
+.carousel__button--right {
+    right: 0;
+    transform: translateY(-50%); /* to vertically center the button */
+}

@@ -1,26 +1,45 @@
-import {createSlice} from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 export const authSlice = createSlice({
-    name: "auth",
+    name: 'auth',
     initialState: {
         user: null,
-        isAuthenticated: false
+        isAuthenticated: false,
+        message: null,
     },
     reducers: {
-        signIn: (state, action) => {
-            state.user = action.payload;
-            state.isAuthenticated = true;
+        // Cette action sera dispatchée avec les données de l'utilisateur après une connexion réussie
+        signInSuccess: (state, action) => {
+            state.user = action.payload.data;
+            state.isAuthenticated = action.payload.success;
+            state.message = action.payload.message;
         },
-        signOut: (state) => {
+        // Pour gérer le sign out, on nettoie simplement l'état
+        signOutSuccess: (state) => {
             state.user = null;
             state.isAuthenticated = false;
-        }
-    }
+            state.message = null;
+        },
+        // Action dispatchée après une inscription réussie
+        signUpSuccess: (state, action) => {
+            state.user = action.payload.data;
+            state.isAuthenticated = action.payload.success;
+            state.message = action.payload.message;
+        },
+        // Gérer les échecs d'authentification (optionnel)
+        authFailure: (state, action) => {
+            state.message = action.payload.message;
+        },
+    },
 });
 
-export const {signIn, signOut} = authSlice.actions;
+// Exporte les actions pour les utiliser dans des composants ou thunks
+export const { signInSuccess, signOutSuccess, signUpSuccess, authFailure } = authSlice.actions;
 
-export const selectUser = (state: {auth: {user: any, isAuthenticated: boolean}}) => state.auth.user;
-export const selectIsAuthenticated = (state: {auth: {user: any, isAuthenticated: boolean}}) => state.auth.isAuthenticated;
+// Sélecteurs
+export const selectUser = (state: { auth: { user: any; isAuthenticated: any; message: any; }; }) => state.auth.user;
+export const selectIsAuthenticated = (state: { auth: { user: any; isAuthenticated: any; message: any; }; }) => state.auth.isAuthenticated;
+export const selectAuthMessage = (state: { auth: { user: any; isAuthenticated: any; message: any; }; }) => state.auth.message;
 
+// Reducer
 export default authSlice.reducer;
