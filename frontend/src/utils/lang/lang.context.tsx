@@ -5,10 +5,16 @@ interface LanguageContextProps {
     setLang: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const LanguageContext = createContext<LanguageContextProps | undefined>(undefined);
+export const LanguageContext = createContext<LanguageContextProps | undefined>({
+    lang: 'en',
+    setLang: () => { throw new Error('setLang function must be overridden'); },
+});
 
-const LanguageProvider: React.FC = ({ children } : { children: React.ReactNode }) => {
-    const [lang, setLang] = useState('en');
+const LanguageProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+    const browserLang = ['en', 'fr'].includes(navigator.language.slice(0, 2)) ? navigator.language.slice(0, 2) : 'en';
+    const [lang, setLang] = useState(browserLang);
+
+    console.log(browserLang);
 
     return (
         <LanguageContext.Provider value={{ lang, setLang }}>

@@ -4,7 +4,8 @@ export const en:LanguageDictionary = {
     'welcome': 'Welcome',
     'game.session': 'Game session',
     'game.groupchat': 'Group chat',
-    'game.settings': 'Parameters',
+    'game.librarium': 'Librarium',
     'game.news': 'News',
     'game.startgame': 'Start the game',
+    'nav.profile': 'Profile',
 }
